@@ -1,0 +1,6 @@
+[core]
+    remote = data-remote
+['remote "data-remote"']
+    url = gs://trainingdata_mlops_w1_graphite-dynamo-473907-c1/
+['remote "model-remote"']
+    url = gs://artifacts-mlops-graphite-dynamo-473907-c1/
