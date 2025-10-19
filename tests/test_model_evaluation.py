@@ -73,9 +73,9 @@ class TestModelEvaluation:
         # Sample test data with known expected outcomes
         # Format: [features, expected_class]
         test_samples = [
-            ([5.1, 3.5, 1.4, 0.2], 0),  # Setosa
-            ([6.0, 2.7, 4.2, 1.3], 1),  # Versicolor
-            ([6.7, 3.0, 5.2, 2.3], 2),  # Virginica
+            ([5.1, 3.5, 1.4, 0.2], 'setosa'),  # Setosa
+            ([6.0, 2.7, 4.2, 1.3], 'versicolor'),  # Versicolor
+            ([6.7, 3.0, 5.2, 2.3], 'virginica'),  # Virginica
         ]
         
         correct_predictions = 0
