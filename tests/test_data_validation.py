@@ -1,81 +1,78 @@
 import pytest
 import pandas as pd
 import numpy as np
-from great_expectations.dataset import PandasDataset
 import os
 
 class TestDataValidation:
     
+    def test_data_file_exists(self):
+        """Test that the data file exists and can be loaded"""
+        data_path = "data/iris.csv"
+        assert os.path.exists(data_path), f"Data file not found at {data_path}"
+        
+        df = pd.read_csv(data_path)
+        assert len(df) > 0, "Data file should not be empty"
+        print(f"✅ Data file loaded successfully with {len(df)} rows")
+    
+    def test_feature_columns_exist(self):
+        """Test that required feature columns exist"""
+        df = pd.read_csv("data/iris.csv")
+        
+        expected_columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
+        for col in expected_columns:
+            assert col in df.columns, f"Missing expected column: {col}"
+        print("✅ All expected feature columns present")
+    
     def test_feature_ranges(self):
-        """Test that feature values are within expected ranges"""
-        # Load actual data from DVC-tracked data folder
-        data_path = "data/iris.csv"  # Adjust path based on your actual data structure
-        if os.path.exists(data_path):
-            df = pd.read_csv(data_path)
-        else:
-            # Fallback for testing structure when data isn't available
-            pytest.skip("Data file not available - skipping range validation")
-            return
+        """Test that feature values are within expected biological ranges"""
+        df = pd.read_csv("data/iris.csv")
         
-        dataset = PandasDataset(df)
+        # Iris dataset typical ranges
+        feature_ranges = {
+            'sepal_length': (4.0, 8.0),
+            'sepal_width': (2.0, 4.5), 
+            'petal_length': (1.0, 7.0),
+            'petal_width': (0.1, 2.5)
+        }
         
-        # Test value ranges based on Iris dataset characteristics
-        assert dataset.expect_column_values_to_be_between(
-            'sepal_length', 4.0, 8.0
-        ).success
-        assert dataset.expect_column_values_to_be_between(
-            'sepal_width', 2.0, 4.5
-        ).success
-        assert dataset.expect_column_values_to_be_between(
-            'petal_length', 1.0, 7.0
-        ).success
-        assert dataset.expect_column_values_to_be_between(
-            'petal_width', 0.1, 2.5
-        ).success
+        for feature, (min_val, max_val) in feature_ranges.items():
+            assert df[feature].min() >= min_val, f"{feature} values below expected range"
+            assert df[feature].max() <= max_val, f"{feature} values above expected range"
+            print(f"✅ {feature} within range [{min_val}, {max_val}]")
     
     def test_no_null_values(self):
-        """Test that there are no null values in features"""
-        data_path = "data/iris.csv"
-        if os.path.exists(data_path):
-            df = pd.read_csv(data_path)
-        else:
-            pytest.skip("Data file not available - skipping null validation")
-            return
+        """Test that there are no null values in the dataset"""
+        df = pd.read_csv("data/iris.csv")
         
-        dataset = PandasDataset(df)
-        
-        # Test for null values in feature columns
-        feature_columns = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width']
-        for column in feature_columns:
-            if column in df.columns:
-                assert dataset.expect_column_values_to_not_be_null(column).success
-    
-    def test_target_distribution(self):
-        """Test that target variable has expected classes"""
-        data_path = "data/iris.csv"
-        if os.path.exists(data_path):
-            df = pd.read_csv(data_path)
-        else:
-            pytest.skip("Data file not available - skipping target validation")
-            return
-        
-        if 'species' in df.columns or 'target' in df.columns:
-            target_col = 'species' if 'species' in df.columns else 'target'
-            dataset = PandasDataset(df)
-            
-            # Test that target has expected number of classes (3 for Iris)
-            unique_classes = df[target_col].nunique()
-            assert unique_classes == 3, f"Expected 3 classes, got {unique_classes}"
+        null_count = df.isnull().sum().sum()
+        assert null_count == 0, f"Found {null_count} null values in the dataset"
+        print("✅ No null values found in dataset")
     
     def test_data_shape(self):
         """Test that dataset has expected shape"""
-        data_path = "data/iris.csv"
-        if os.path.exists(data_path):
-            df = pd.read_csv(data_path)
-        else:
-            pytest.skip("Data file not available - skipping shape validation")
-            return
+        df = pd.read_csv("data/iris.csv")
         
-        # Iris dataset typically has 150 samples
-        assert df.shape[0] > 0, "Dataset should have at least one sample"
-        assert df.shape[1] >= 4, "Dataset should have at least 4 feature columns"
+        # Iris dataset typically has 150 samples and 4-5 columns
+        assert df.shape[0] >= 100, f"Too few samples: {df.shape[0]}"
+        assert df.shape[1] >= 4, f"Too few columns: {df.shape[1]}"
+        print(f"✅ Dataset shape: {df.shape}")
+    
+    def test_target_variable(self):
+        """Test target variable if present"""
+        df = pd.read_csv("data/iris.csv")
+        
+        # Check if target column exists (could be 'species', 'target', etc.)
+        target_columns = ['species', 'target', 'class']
+        target_col = None
+        
+        for col in target_columns:
+            if col in df.columns:
+                target_col = col
+                break
+        
+        if target_col:
+            unique_classes = df[target_col].nunique()
+            assert unique_classes == 3, f"Expected 3 classes, got {unique_classes}"
+            print(f"✅ Target variable '{target_col}' has {unique_classes} classes")
+        else:
+            print("ℹ️  No target variable found (this is OK for feature data)")
