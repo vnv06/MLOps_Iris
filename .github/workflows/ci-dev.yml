@@ -42,7 +42,7 @@ jobs:
         pytest tests/ -v --cov=.
 
     - name: Create CML report
-      uses: iterative/cml@v0.18.0
+      uses: iterative/setup-cml@v2
       with:
         file: report.md
       env:
@@ -94,7 +94,7 @@ jobs:
         " >> report.md
     
     - name: Create CML report
-      uses: iterative/cml@v0.18.0
+      uses: iterative/setup-cml@v2
       with:
         file: report.md
       env:
