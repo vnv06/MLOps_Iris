@@ -27,6 +27,11 @@ jobs:
     
     - name: Setup DVC
       uses: iterative/setup-dvc@v1
+      
+    - name: Authenticate with Google Cloud
+      uses: google-github-actions/auth@v1
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
     
     - name: Pull data and model from DVC
       run: |
