@@ -42,8 +42,8 @@ class TestModelEvaluation:
             
             # Check prediction shape and type
             assert prediction.shape == (1,), f"Prediction shape should be (1,), got {prediction.shape}"
-            assert isinstance(prediction[0], (int, np.integer)), f"Prediction should be integer, got {type(prediction[0])}"
-            assert 0 <= prediction[0] <= 2, f"Prediction should be between 0-2, got {prediction[0]}"
+            valid_predictions = ['setosa', 'versicolor', 'virginica']
+            assert prediction[0] in valid_predictions, f"Prediction should be one of {valid_predictions}, got {prediction[0]}"  
             
             print(f"✅ Test case {i+1}: Features {features} -> Prediction: {prediction[0]}")
     
