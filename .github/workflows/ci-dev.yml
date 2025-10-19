@@ -40,13 +40,13 @@ jobs:
     - name: Run tests with pytest
       run: |
         pytest tests/ -v --cov=.
-    
-    - name: CML Report
-      uses: iterative/cml@v2
-      with:
-        file: report.md
+
+    - name: Create CML report
+      uses: docker://dvcorg/cml:0.19.0
       env:
         REPO_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        file: report.md
 
   sanity-test:
     runs-on: ubuntu-latest
